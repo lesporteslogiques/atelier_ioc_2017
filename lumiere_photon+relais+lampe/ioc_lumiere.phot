@@ -1,0 +1,35 @@
+int broche_led_interne = D7;
+int broche_relais = D4;
+int broche_bouton = D0;
+
+boolean lumiere_on = false;
+
+void setup() {
+    pinMode(broche_led_interne, OUTPUT);
+    pinMode(broche_relais, OUTPUT);
+    pinMode(broche_bouton, INPUT);
+    Particle.function("lumiere", controleLumiere);
+}
+
+void loop() {
+    if (digitalRead(broche_bouton) == HIGH) {
+        lumiere_on = !lumiere_on;
+        if (lumiere_on) controleLumiere("on");
+        else controleLumiere("off");
+        delay(1000);
+    }
+}
+
+int controleLumiere(String commande) {
+    if (commande.equalsIgnoreCase("on")) {
+        digitalWrite(broche_led_interne, HIGH);
+        digitalWrite(broche_relais, HIGH);
+        return 1;
+    }
+    else if (commande.equalsIgnoreCase("off")) {
+        digitalWrite(broche_led_interne, LOW);
+        digitalWrite(broche_relais, LOW);
+        return 0;
+    }
+    return -1;
+}

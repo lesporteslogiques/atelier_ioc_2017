@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- controle de lumière à distance -->
+<meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+
+<style type="text/css">
+    div {
+        width: 100px;
+        height: 100px;
+        background-color: white;
+        position: absolute;
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+    input[type=button] {
+        color: white;
+        font-size: 1.5em;
+        width: 100px;
+        height: 100px;
+    }
+    .on  { background:green; }
+    .off { background:red; }
+</style>
+
+<script>
+var accessToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+var deviceID = "xxxxxxxxxxxxxxxxxxxxxxxx";
+var url = "https://api.particle.io/v1/devices/" + deviceID + "/lumiere";
+
+function basculerLumiere(item){
+    
+	function definirLumiere(message){
+		$.post(url, {params: message, access_token: accessToken}, callback, "json");
+	} 
+
+	function callback(data){
+		if (data.return_value == 1) {
+			item.className = "off";
+            item.value = "off";
+            document.body.style.backgroundColor = "#FFFFFF";            
+		}	
+		else if (data.return_value == 0) {
+			item.className = "on";
+            item.value = "on";
+            document.body.style.backgroundColor = "#000000"; 
+		}
+		else if (data.return_value == -1) {
+			alert("Impossible de se connecter au Photon");
+		}
+	}
+    
+    if(item.className == "on") {
+	  definirLumiere("on");
+    } else {
+	  definirLumiere("off");
+    }
+}
+</script>
+
+</head>	
+
+<body>
+    <div>
+        <input type="button" id="bouton" class="off" onClick="basculerLumiere(this)" value="off"/>
+    </div>
+</body>
+
+</html>

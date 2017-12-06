@@ -1,0 +1,52 @@
+Servo servomoteur;  
+
+int position = 0;
+int broche_bouton1 = D3;
+int broche_bouton2 = D4;
+
+void setup() {
+    
+    servomoteur.attach(D0);   
+    servomoteur.write(25);    // test 
+    pinMode(D7, OUTPUT);  
+    pinMode(broche_bouton1, INPUT);
+    pinMode(broche_bouton2, INPUT);
+    
+    Particle.function("alarme", declencherAlarme);  
+}
+
+int declencherAlarme(String commande) {       
+    
+    if (commande == "tic") {     
+        
+        servomoteur.write(0);       
+        digitalWrite(D7, HIGH); 
+        delay(100);             
+        servomoteur.write(25);      
+        digitalWrite(D7, LOW);  
+
+    } else if (commande == "triple")  {    
+        
+        for (int i = 0; i < 3; i++) {
+            
+            servomoteur.write(0);       
+            digitalWrite(D7, HIGH); 
+            delay(100);             
+            servomoteur.write(25);      
+            digitalWrite(D7, LOW);  
+            delay(1000);   
+            
+        }
+    }
+}
+
+void loop() {
+    if (digitalRead(broche_bouton1) == HIGH) {
+        declencherAlarme("tic");
+        delay(1000);
+    }
+    if (digitalRead(broche_bouton2) == HIGH) {
+        declencherAlarme("triple");
+        delay(1000);
+    } 
+}

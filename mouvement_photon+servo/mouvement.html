@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><!-- controle d'un moteur -->
+<head>
+<meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script>
+var accessToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+var deviceID = "xxxxxxxxxxxxxxxxxxxxxxxx";
+var url = "https://api.particle.io/v1/devices/" + deviceID + "/alarme";
+
+function declencherTic()
+{
+	$.post(url, {params: "tic", access_token: accessToken });
+}  
+
+function declencherTriple()
+{
+	$.post(url, {params: "triple", access_token: accessToken });
+}  
+</script>
+<style type="text/css">
+
+    div {
+        width: 200px;
+        height: 250px;
+        background-color: white;
+        position: absolute;
+        top:0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+
+</style>
+</head>	
+
+<body>
+
+<div>	
+    <input type="button" onClick="declencherTic()" value="tic!"/>
+    <input type="button" onClick="declencherTriple()" value="triple"/>
+</div>
+
+</body>
+</html>

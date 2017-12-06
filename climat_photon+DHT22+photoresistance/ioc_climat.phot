@@ -1,0 +1,115 @@
+// bibliotheque de fonctions pour le capteur DHT22
+#include <Adafruit_DHT.h>
+
+// bibliotheque de fonctions pour l'écran OLED
+#include <Grove_OLED_128x64.h>
+
+// bibliotheque de fonctions pour la communication I2C
+#include <Wire.h>
+#include <avr/pgmspace.h>
+
+// definitions pour le capteur DHT22
+#define DHTPIN 2     // sur quelle broche est il connecté ?
+#define DHTTYPE DHT22		// type du capteur
+
+DHT dht(DHTPIN, DHTTYPE);
+
+int compteur = 0;
+long start;
+
+double temperature = 9999.00;
+double humidite = 9999.00;
+double point_de_rosee = 9999.00;
+double indice_de_chaleur = 9999.00;
+
+int analogPin = A0;
+int luminosite = 0;
+int mesures = 16;
+
+char tempString[40]; // On ne peut publier que des chaines de caractere
+char humiString[40];
+char roseString[40];
+char lumiString[40];
+
+void setup() {
+    
+  Wire.begin();
+  SeeedOled.init();  //initialiser l'écran OLED
+
+  SeeedOled.clearDisplay();         
+  SeeedOled.setNormalDisplay();      
+  SeeedOled.setPageMode();           
+
+  dht.begin();
+}
+
+void loop()
+{
+    
+    // Enregistrer les mesures
+    luminosite = 0;
+    
+    for(int i = 0; i < mesures; ++i) {
+        luminosite += analogRead(analogPin);
+        delay(10);
+    }
+    luminosite /= mesures;
+    
+    humidite = dht.getHumidity();
+	temperature = dht.getTempCelcius();
+	indice_de_chaleur = dht.getHeatIndex();
+    point_de_rosee = dht.getDewPoint();
+    	
+    // Afficher les valeurs sur l'écran	
+    SeeedOled.setTextXY(1,0);
+    SeeedOled.putString("TEMP. ");
+    SeeedOled.setTextXY(1,6);
+    SeeedOled.putNumber(temperature);
+    
+    SeeedOled.setTextXY(2,0);
+    SeeedOled.putString("HUM.  ");
+    SeeedOled.setTextXY(2,6);
+    SeeedOled.putNumber(humidite);
+        
+    SeeedOled.setTextXY(3,0);
+    SeeedOled.putString("DEWP. ");
+    SeeedOled.setTextXY(3,6);
+    SeeedOled.putNumber(point_de_rosee);
+        
+    SeeedOled.setTextXY(4,0);
+    SeeedOled.putString("CHAL. ");
+    SeeedOled.setTextXY(4,6);
+    SeeedOled.putNumber(indice_de_chaleur);
+        
+    SeeedOled.setTextXY(5,0);
+    SeeedOled.putString("LUM.  ");
+    SeeedOled.setTextXY(5,6);
+    SeeedOled.putNumber(luminosite);
+        
+    SeeedOled.setTextXY(6,0);
+    SeeedOled.putString("STEP. ");
+    SeeedOled.setTextXY(6,6);
+    SeeedOled.putNumber(compteur);
+    
+    // Préparer les chaines de caractères
+    // On pourrait aussi utiliser String()...
+    sprintf(tempString,"%.3f",temperature);
+    sprintf(humiString,"%.3f",humidite);
+    sprintf(roseString,"%.3f",point_de_rosee);
+    sprintf(lumiString,"%d",luminosite);
+    
+    // Publication sur le web étalées sur 20 secondes
+    
+    Particle.publish("temperature", tempString);
+    delay(5000);
+    Particle.publish("humidite", humiString);
+    delay(5000);
+    Particle.publish("point_de_rosee", roseString);
+    delay(5000);
+    Particle.publish("luminosite", lumiString);
+    delay(5000); 
+    
+    delay(40000); // 40 secondes de pause
+    
+    compteur ++; // Compter!
+}
